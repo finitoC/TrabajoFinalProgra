@@ -23,13 +23,40 @@
             }
             this.id = id;
             this.edadMinima = edadMinima;
-            /**setNombre(nombre);
+            setNombre(nombre);
             setApellido(apellido);
             setDni(dni);
             setEdad(edad);
             setTelefono(telefono);
             setEmail(email);
-             */
+
         }
+
+     public String getNombre() { return nombre; }
+     public String getApellido() { return apellido; }
+     public String getNombreCompleto() { return apellido + ", " + nombre; }
+     public String getDni() { return dni; }
+     public int getEdad() { return edad; }
+     public String getTelefono() { return telefono; }
+     public String getEmail() { return email; }
+
+     public final void setNombre(String nombre) throws DatosInvalidosException {
+         this.nombre = Validador.validarNombre(nombre);
+     }
+     public final void setApellido(String apellido) throws DatosInvalidosException {
+         this.apellido = Validador.validarNombre(apellido);
+     }
+     public final void setDni(String dni) throws DatosInvalidosException {
+         this.dni = Validador.validarDni(dni);
+     }
+     public final void setEdad(int edad) throws DatosInvalidosException {
+         this.edad = Validador.validarEdad(edad);
+     }
+     public final void setTelefono(String telefono) throws DatosInvalidosException {
+         this.telefono = Validador.validarTelefono(telefono);
+     }
+     public final void setEmail(String email) throws DatosInvalidosException {
+         this.email = Validador.validarEmail(email);
+     }
 
 }

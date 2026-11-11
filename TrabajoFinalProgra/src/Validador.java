@@ -43,7 +43,7 @@ public class Validador {
     }
 
     public static int validarEdad(int edad) throws DatosInvalidosException {
-        if (edad < 16 || edad > 100) {
+        if (edad < 12 || edad > 90) {
             throw new DatosInvalidosException("La edad debe estar entre 16 y 100 años.");
         }
 
