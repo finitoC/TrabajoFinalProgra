@@ -44,7 +44,7 @@ public class Validador {
 
     public static int validarEdad(int edad) throws DatosInvalidosException {
         if (edad < 12 || edad > 90) {
-            throw new DatosInvalidosException("La edad debe estar entre 16 y 100 años.");
+            throw new DatosInvalidosException("La edad debe estar entre 12 y 90 años.");
         }
 
         return edad;
@@ -78,6 +78,17 @@ public class Validador {
         }
 
         return email.trim();
+    }
+
+    public static int validarAniosExperiencia(int anios, int edad) throws DatosInvalidosException {
+
+        int maxAnios = edad - 16;
+
+        if (anios < 0 || anios > maxAnios) {
+            throw new DatosInvalidosException("Los años de experiencia no son válidos para la edad del entrenador.");
+        }
+
+        return anios;
     }
 }
 

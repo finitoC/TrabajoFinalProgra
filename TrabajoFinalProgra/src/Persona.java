@@ -16,7 +16,7 @@
         private final int edadMinima;
 
         /** Usamos setters en vez de hacer this.__ == __ para poder usar nuestras propias verificaciones en el setter*/
-        private Persona(int id, String nombre, String apellido, String dni, int edad,
+        public Persona(int id, String nombre, String apellido, String dni, int edad,
                           String telefono, String email, int edadMinima) throws DatosInvalidosException {
             if (id < 0) {
                 throw new DatosInvalidosException("El id no puede ser negativo.");
