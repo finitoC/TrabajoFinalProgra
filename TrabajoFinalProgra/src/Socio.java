@@ -19,7 +19,9 @@ public class Socio extends Persona {
     public LocalDate getFechaAlta() { return fechaAlta; }
 
     @Override
-    public String getRol() { return "Socio"; }
+    public String getRol() {
+        return "Socio";
+    }
 
     public int getId(){
         return super.getId();
