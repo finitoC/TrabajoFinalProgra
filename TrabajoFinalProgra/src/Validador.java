@@ -119,5 +119,29 @@ public class Validador {
 
         return valor;
     }
+
+    public static int entero(int valor, String campo, int minimo, int maximo)
+            throws DatosInvalidosException {
+
+        if (valor < minimo || valor > maximo) {
+            throw new DatosInvalidosException(
+                    campo + " debe estar entre " + minimo + " y " + maximo + "."
+            );
+        }
+
+        return valor;
+    }
+
+    public static double decimal(double valor, String campo, double minimo, double maximo)
+            throws DatosInvalidosException {
+
+        if (valor < minimo || valor > maximo) {
+            throw new DatosInvalidosException(
+                    campo + " debe estar entre " + minimo + " y " + maximo + "."
+            );
+        }
+
+        return valor;
+    }
 }
 

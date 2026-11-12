@@ -19,6 +19,11 @@ import java.util.HashSet;
             this.actividades.addAll(actividades);
         }
 
+        @Override
+        public String getRol(){
+            return "Entrenador";
+        }
+
         public int getAniosExperiencia() { return aniosExperiencia; }
 
         public HashSet<Actividad> getActividades() {

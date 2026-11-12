@@ -21,6 +21,10 @@ public class Socio extends Persona {
     @Override
     public String getRol() { return "Socio"; }
 
+    public int getId(){
+        return super.getId();
+    }
+
     @Override
     public String resumen() {
         return super.resumen() + " | Alta: " + fechaAlta;

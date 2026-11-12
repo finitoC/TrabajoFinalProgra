@@ -40,6 +40,10 @@
      public String getTelefono() { return telefono; }
      public String getEmail() { return email; }
 
+     public int getId() {
+         return id;
+     }
+
      public abstract String getRol();
 
      public final void setNombre(String nombre) throws DatosInvalidosException {
