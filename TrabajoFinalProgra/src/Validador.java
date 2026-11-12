@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 public class Validador {
 
     public static String validarNombre(String nombre) throws DatosInvalidosException {
@@ -89,6 +91,17 @@ public class Validador {
         }
 
         return anios;
+    }
+
+    public static LocalDate fechaEntre(LocalDate fecha, String campo, LocalDate minimo, LocalDate maximo) throws DatosInvalidosException {
+        if (fecha == null) {
+            throw new DatosInvalidosException(campo + " no puede estar vacía.");
+        }
+
+        if (fecha.isBefore(minimo) || fecha.isAfter(maximo)) {
+            throw new DatosInvalidosException(campo + " no es válida.");
+        }
+        return fecha;
     }
 }
 

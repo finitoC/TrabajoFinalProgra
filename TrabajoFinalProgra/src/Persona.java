@@ -2,7 +2,7 @@
      * Todos los atributos son privados y se modifican solo mediante setters
      * que validan el dato antes de aceptarlo
      */
-    public abstract class Persona {
+    public abstract class Persona implements ClaseDescribible {
 
         public static final int EDAD_MAXIMA = 90;
 
@@ -40,6 +40,8 @@
      public String getTelefono() { return telefono; }
      public String getEmail() { return email; }
 
+     public abstract String getRol();
+
      public final void setNombre(String nombre) throws DatosInvalidosException {
          this.nombre = Validador.validarNombre(nombre);
      }
@@ -59,4 +61,16 @@
          this.email = Validador.validarEmail(email);
      }
 
-}
+     @Override
+     public String resumen() {
+         return "[" + id + "] " + getRol() + " - " + getNombreCompleto()
+                 + " | DNI " + dni
+                 + " | " + edad + " años"
+                 + " | Tel " + telefono;
+     }
+
+     @Override
+     public String toString() {
+         return resumen();
+     }
+ }
