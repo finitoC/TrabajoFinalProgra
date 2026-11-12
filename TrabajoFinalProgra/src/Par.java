@@ -1,11 +1,9 @@
 
-/**
- * CLASE GENÉRICA: agrupa dos valores de tipos distintos.
- * Se usa, por ejemplo, para devolver "socio + fecha de vencimiento" en los reportes.
- *
- * @param <A> tipo del primer valor
- * @param <B> tipo del segundo valor
- */
+///CLASE GENÉRICA: agrupa dos valores de tipos distintos.
+///Se usa, por ejemplo, para devolver "socio + fecha de vencimiento" en los reportes.
+
+
+
 public class Par<A, B> {
     private final A primero;
     private final B segundo;
