@@ -103,5 +103,21 @@ public class Validador {
         }
         return fecha;
     }
+
+    public static String texto(String valor, String campo, int minimo, int maximo)
+            throws DatosInvalidosException {
+
+        if (valor == null || valor.trim().isEmpty()) {
+            throw new DatosInvalidosException(campo + " no puede estar vacío.");
+        }
+
+        valor = valor.trim();
+
+        if (valor.length() < minimo || valor.length() > maximo) {
+            throw new DatosInvalidosException(campo + " debe tener entre " + minimo + " y " + maximo + " caracteres");
+        }
+
+        return valor;
+    }
 }
 
