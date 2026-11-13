@@ -1,5 +1,4 @@
-public enum Actividad {
-    /** Actividades que ofrece el gimnasio **/
+ /** Actividades que ofrece el gimnasio **/
     public enum Actividad {
         GIMNASIO("Gimnasio"),
         BOXEO("Boxeo");
@@ -11,5 +10,3 @@ public enum Actividad {
         @Override
         public String toString() { return etiqueta; }
     }
-
-}
