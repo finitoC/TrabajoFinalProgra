@@ -14,9 +14,9 @@ public class SistemBDD {
      */
     private static Connection conectar() throws GimnasioException {
         try {
-            return DriverManager.getConnection(URL, USUARIO, CLAVE);
+            return DriverManager.getConnection(URL);
         } catch (SQLException e) {
-            throw new GimnasioException("No se pudo conectar a la base de datos: " + e.getMessage(), e);
+            throw new GimnasioException("No se pudo conectar a la base de datos: " + e.getMessage());
         }
     }
 
@@ -67,9 +67,9 @@ public class SistemBDD {
                 );
             }
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw new GimnasioException("Ya existe un socio con el DNI " + socio.getDni() + ".", e);
+            throw new GimnasioException("Ya existe un socio con el DNI " + socio.getDni() + ".");
         } catch (SQLException e) {
-            throw new GimnasioException("Error al guardar el socio: " + e.getMessage(), e);
+            throw new GimnasioException("Error al guardar el socio: " + e.getMessage());
         }
     }
 
@@ -101,7 +101,7 @@ public class SistemBDD {
                 );
             }
         } catch (SQLException e) {
-            throw new GimnasioException("Error al buscar el socio: " + e.getMessage(), e);
+            throw new GimnasioException("Error al buscar el socio: " + e.getMessage());
         }
     }
 
@@ -130,6 +130,56 @@ public class SistemBDD {
         }
 
 
+    }
+
+    public static void guardarPago(Pago pago) throws GimnasioException {
+        if(pago == null){
+            throw new GimnasioException("El pago esta vacio");
+        }
+        String sql = "INSERT INTO pago (socio_id, plan_id, actividad, monto, fecha_pago, fecha_vencimiento) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection con = conectar();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, pago.getSocioId());
+            ps.setInt(2, pago.getPlanId());
+            ps.setString(3, pago.getActividad().name());
+            ps.setDouble(4, pago.getMonto());
+            ps.setObject(5, pago.getFechaPago());
+            ps.setObject(6, pago.getFechaVencimiento());
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (!rs.next()) {
+                    throw new GimnasioException("No se pudo obtener el id del pago guardado.");
+                }
+                pago.setId(rs.getInt(1));
+            }
+        } catch (SQLException e) {
+            throw new GimnasioException("Error al guardar el pago: " + e.getMessage());
+        }
+    }
+
+    public static ArrayList<Pago> listarPagosDeSocio(int socioId) throws GimnasioException {
+        if (socioId < 0){
+            throw new DatosInvalidosException("El id del socio no existe");
+        }
+        ArrayList<Pago> pagos = new ArrayList<>();
+        String sql = "SELECT * FROM pago WHERE socio_id = ? ORDER BY fecha_pago DESC";
+
+        try (Connection con = conectar(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, socioId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    pagos.add(new Pago(rs.getInt("id"), rs.getInt("socio_id"), rs.getInt("plan_id"),
+                            Actividad.valueOf(rs.getString("actividad")), rs.getDouble("monto"),
+                            rs.getDate("fecha_pago").toLocalDate(),
+                            rs.getDate("fecha_vencimiento").toLocalDate()));
+                }
+            }
+            return pagos;
+        } catch (SQLException e) {
+            throw new GimnasioException("Error al listar los pagos del socio: " + e.getMessage());
+        }
     }
 
 

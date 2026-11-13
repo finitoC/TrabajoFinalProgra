@@ -6,11 +6,10 @@ public class DBHandler {
 
     public class BDHandler {
 
-        private static final String URL =
-                "jdbc:mysql://localhost:3306/fightfit";
+        private static final String URL = "jdbc:mysql://tupalumni:3306/fightfit";
 
-        private static final String USUARIO = "root";
-        private static final String PASSWORD = "lucho2006";
+        private static final String USUARIO = "bdd1";
+        private static final String PASSWORD = "bdd1";
 
         public static Connection obtenerConexion()
                 throws SQLException {
