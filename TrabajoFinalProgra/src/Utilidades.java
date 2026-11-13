@@ -11,15 +11,6 @@ public final class Utilidades {
 
     private Utilidades() { }
 
-    public static <T> List<T> filtrar(Collection<T> origen, Predicate<T> condicion) {
-        List<T> resultado = new ArrayList<>();
-        for (T elemento : origen) {
-            if (condicion.test(elemento)) resultado.add(elemento);
-        }
-        return resultado;
-    }
-
-
     public static <T extends ClaseDescribible> void imprimirLista(
             String titulo, ArrayList<T> elementos) {
 

@@ -10,17 +10,17 @@ import java.util.Set;
 public class ClaseGrupal implements ClaseDescribible {
 
     private int id;
-    private final String nombre;
-    private final Actividad actividad;
-    private final DayOfWeek dia;
-    private final LocalTime hora;
-    private final int cupo;
+    private String nombre;
+    private Actividad actividad;
+    private DiaSemana diaSemana;
+    private  LocalTime hora;
+    private int cupo;
     /** 0 significa "sin entrenador asignado". */
     private int entrenadorId;
     /** COLECCIÓN (Set): ids de socios inscriptos; el Set impide inscribir dos veces al mismo socio. */
     private final Set<Integer> inscriptos = new HashSet<>();
 
-    public ClaseGrupal(int id, String nombre, Actividad actividad, DayOfWeek dia, LocalTime hora,
+    public ClaseGrupal(int id, String nombre, Actividad actividad, DiaSemana dia, LocalTime hora,
                        int cupo, int entrenadorId) throws DatosInvalidosException {
         if (id < 0 || entrenadorId < 0) throw new DatosInvalidosException("Referencias de la clase inválidas.");
         if (actividad == null || dia == null || hora == null) {
@@ -29,7 +29,7 @@ public class ClaseGrupal implements ClaseDescribible {
         this.id = id;
         this.nombre = Validador.texto(nombre, "Nombre de la clase", 3, 40);
         this.actividad = actividad;
-        this.dia = dia;
+        this.diaSemana = diaSemana;
         this.hora = hora;
         this.cupo = Validador.entero(cupo, "Cupo", 1, 100);
         this.entrenadorId = entrenadorId;
@@ -50,23 +50,20 @@ public class ClaseGrupal implements ClaseDescribible {
     }
 
     /** Usado por el DAO para reconstruir la clase desde la base de datos. */
-    public void cargarInscriptos(Set<Integer> ids) { inscriptos.addAll(ids); }
+    public void cargarInscriptos(HashSet<Integer> ids) { inscriptos.addAll(ids); }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getNombre() { return nombre; }
     public Actividad getActividad() { return actividad; }
-    public DayOfWeek getDia() { return dia; }
+    public DiaSemana getDia() { return diaSemana; }
     public LocalTime getHora() { return hora; }
     public int getCupo() { return cupo; }
     public int getEntrenadorId() { return entrenadorId; }
     public void setEntrenadorId(int entrenadorId) { this.entrenadorId = entrenadorId; }
-    public Set<Integer> getInscriptos() { return Collections.unmodifiableSet(inscriptos); }
 
     @Override
     public String resumen() {
-        return String.format("[%d] %s (%s) | %s %s | cupo %d/%d | entrenador: %s", id, nombre, actividad,
-                Utilidades.diaEnEspanol(dia), hora, inscriptos.size(), cupo,
-                entrenadorId == 0 ? "sin asignar" : "id " + entrenadorId);
+        return String.format("[%d] %s (%s) | %s %s | cupo %d/%d | entrenador: %s", id, nombre, actividad, diaSemana, hora, inscriptos.size(), cupo, entrenadorId == 0 ? "sin asignar" : "id " + entrenadorId);
     }
 }
