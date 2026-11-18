@@ -57,6 +57,9 @@
      }
      public final void setEdad(int edad) throws DatosInvalidosException {
          this.edad = Validador.validarEdad(edad);
+         if (this.edad < edadMinima) {
+             throw new DatosInvalidosException("La edad minima permitida es " + edadMinima + " años.");
+         }
      }
      public final void setTelefono(String telefono) throws DatosInvalidosException {
          this.telefono = Validador.validarTelefono(telefono);

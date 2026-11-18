@@ -22,6 +22,10 @@ public class Membresia {
         return id;
     }
 
+    public void setId(int id) {
+        if (id <= 0) throw new DatosInvalidosException("El ID del plan debe ser positivo.");
+        this.id = id;
+    }
     public String getNombre() {
         return nombre;
     }
