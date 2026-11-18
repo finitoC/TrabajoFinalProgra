@@ -29,7 +29,7 @@ public class ClaseGrupal implements ClaseDescribible {
         this.id = id;
         this.nombre = Validador.texto(nombre, "Nombre de la clase", 3, 40);
         this.actividad = actividad;
-        this.diaSemana = diaSemana;
+        this.diaSemana = dia;
         this.hora = hora;
         this.cupo = Validador.entero(cupo, "Cupo", 1, 100);
         this.entrenadorId = entrenadorId;

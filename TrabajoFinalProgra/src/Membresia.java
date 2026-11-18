@@ -7,7 +7,7 @@ public class Membresia {
     private final Actividad actividad;
     private final int duracionDias;
     private final double precio;
-    private static int numerosID = 0;
+    private static int numerosID = 1;
 
 
     public Membresia(String nombre, Actividad actividad, int duracionDias, double precio){

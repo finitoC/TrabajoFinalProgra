@@ -4,19 +4,14 @@ import java.util.ArrayList;
 
 public class SistemBDD {
 
-
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/";
-
-
     /**
      * Abre una conexión nueva. Quien la pida es responsable de cerrarla (try-with-resources).
      */
     private static Connection conectar() throws GimnasioException {
         try {
-            return DriverManager.getConnection(URL);
+            return DBHandler.obtenerConexion();
         } catch (SQLException e) {
-            throw new GimnasioException("No se pudo conectar a la base de datos: " + e.getMessage());
+            throw new GimnasioException("Error de conexión: " + e.getMessage());
         }
     }
 
