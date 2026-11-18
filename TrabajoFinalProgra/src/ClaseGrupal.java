@@ -17,11 +17,9 @@ public class ClaseGrupal implements ClaseDescribible {
     private int cupo;
     /** 0 significa "sin entrenador asignado". */
     private int entrenadorId;
-    /** COLECCIÓN (Set): ids de socios inscriptos; el Set impide inscribir dos veces al mismo socio. */
-    private final Set<Integer> inscriptos = new HashSet<>();
+    private final HashSet<Integer> inscriptos = new HashSet<>();
 
-    public ClaseGrupal(int id, String nombre, Actividad actividad, DiaSemana dia, LocalTime hora,
-                       int cupo, int entrenadorId) throws DatosInvalidosException {
+    public ClaseGrupal(int id, String nombre, Actividad actividad, DiaSemana dia, LocalTime hora, int cupo, int entrenadorId) throws DatosInvalidosException {
         if (id < 0 || entrenadorId < 0) throw new DatosInvalidosException("Referencias de la clase inválidas.");
         if (actividad == null || dia == null || hora == null) {
             throw new DatosInvalidosException("Actividad, día y hora son obligatorios.");
