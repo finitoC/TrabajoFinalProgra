@@ -1,5 +1,6 @@
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -37,7 +38,7 @@ public class Main {
                     menuPagos(sc);
                     break;
                 case 5:
-                    System.out.println("Asistencias");
+                    menuAsistencias(sc);
                     break;
                 case 6:
                     System.out.println("Clases grupales");
@@ -507,8 +508,129 @@ public class Main {
                     }
                     break;
 
+
                 case 3:
-                    System.out.println("Consultar estado de membresia");
+                    try {
+                        String dni = leerTexto(sc, "DNI del socio: ");
+
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                        System.out.println("\nEstado de membresias de "
+                                + socio.getNombre() + " " + socio.getApellido());
+
+                        for (Actividad actividad : Actividad.values()) {
+
+                            LocalDate vencimiento = SistemBDD.ultimoVencimiento(
+                                    socio.getId(), actividad);
+
+                            EstadoMembresia estado =
+                                    EstadoMembresia.calcular(vencimiento);
+
+                            System.out.println("\nActividad: " + actividad);
+                            System.out.println("Estado: " + estado);
+
+                            if (vencimiento != null) {
+                                System.out.println("Vencimiento: " + vencimiento);
+                            }
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case 0:
+                    System.out.println("Volviendo al menu principal...");
+                    break;
+
+                default:
+                    System.out.println("Opcion incorrecta");
+            }
+
+        } while (opcion != 0);
+    }
+
+    private static void menuAsistencias(Scanner sc) {
+        int opcion;
+
+        do {
+            System.out.println("\n===== GESTION DE ASISTENCIAS =====");
+            System.out.println("1. Registrar asistencia");
+            System.out.println("2. Listar asistencias de un socio");
+            System.out.println("0. Volver");
+
+            opcion = leerEntero(sc, "Ingrese una opcion: ");
+
+            switch (opcion) {
+                case 1:
+                    try {
+                        String dni = leerTexto(sc, "DNI del socio: ");
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                        System.out.println("Socio: " + socio.getNombre()
+                                + " " + socio.getApellido());
+
+                        int opcionActividad;
+
+                        do {
+                            System.out.println("1. Gimnasio");
+                            System.out.println("2. Boxeo");
+
+                            opcionActividad = leerEntero(sc, "Actividad: ");
+
+                            if (opcionActividad < 1 || opcionActividad > 2) {
+                                System.out.println("Opcion incorrecta");
+                            }
+
+                        } while (opcionActividad < 1 || opcionActividad > 2);
+
+                        Actividad actividad;
+
+                        if (opcionActividad == 1) {
+                            actividad = Actividad.GIMNASIO;
+                        } else {
+                            actividad = Actividad.BOXEO;
+                        }
+
+                        Asistencia asistencia = new Asistencia(
+                                0,
+                                socio.getId(),
+                                actividad,
+                                LocalDateTime.now()
+                        );
+
+                        SistemBDD.guardarAsistencia(asistencia);
+
+                        System.out.println("Asistencia registrada correctamente!");
+                        System.out.println("Actividad: " + actividad);
+                        System.out.println("Fecha y hora: " + asistencia.getFechaHora());
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case 2:
+                    try {
+                        String dni = leerTexto(sc, "DNI del socio: ");
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                        ArrayList<Asistencia> asistencias =
+                                SistemBDD.listarAsistenciasDeSocio(socio.getId());
+
+                        if (asistencias.isEmpty()) {
+                            System.out.println("El socio no tiene asistencias registradas");
+                        } else {
+                            for (Asistencia asistencia : asistencias) {
+                                System.out.println("Actividad: " + asistencia.getActividad());
+                                System.out.println("Fecha y hora: " + asistencia.getFechaHora());
+                                System.out.println("----------------------");
+                            }
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 0:
