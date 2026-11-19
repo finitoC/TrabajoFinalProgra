@@ -31,10 +31,10 @@ public class Main {
                     menuEntrenadores(sc);
                     break;
                 case 3:
-                    System.out.println("Membresias");
+                    menuMembresias(sc);
                     break;
                 case 4:
-                    System.out.println("Pagos");
+                    menuPagos(sc);
                     break;
                 case 5:
                     System.out.println("Asistencias");
@@ -281,7 +281,20 @@ public class Main {
 
         } while (opcion != 0);
     }
+    private static double leerDecimal(Scanner sc, String mensaje) {
+        System.out.print(mensaje);
 
+        while (!sc.hasNextDouble()) {
+            System.out.println("Error: debe ingresar un numero.");
+            sc.nextLine();
+            System.out.print(mensaje);
+        }
+
+        double numero = sc.nextDouble();
+        sc.nextLine();
+
+        return numero;
+    }
     private static void menuMembresias(Scanner sc) {
         int opcion;
 
@@ -294,9 +307,54 @@ public class Main {
             opcion = leerEntero(sc, "Ingrese una opcion: ");
 
             switch (opcion) {
+
                 case 1:
-                    System.out.println("Registrar membresia");
+                    try {
+                        String nombre = leerTexto(sc, "Nombre del plan: ");
+
+                        int opcionActividad;
+
+                        do {
+                            System.out.println("Seleccione la actividad:");
+                            System.out.println("1. Gimnasio");
+                            System.out.println("2. Boxeo");
+
+                            opcionActividad = leerEntero(sc, "Opcion: ");
+
+                            if (opcionActividad < 1 || opcionActividad > 2) {
+                                System.out.println("Opcion incorrecta");
+                            }
+
+                        } while (opcionActividad < 1 || opcionActividad > 2);
+
+                        Actividad actividad;
+
+                        if (opcionActividad == 1) {
+                            actividad = Actividad.GIMNASIO;
+                        } else {
+                            actividad = Actividad.BOXEO;
+                        }
+
+                        int duracion = leerEntero(sc, "Duracion en dias: ");
+                        double precio = leerDecimal(sc, "Precio: ");
+
+                        Membresia membresia = new Membresia(
+                                nombre, actividad, duracion, precio
+                        );
+
+                        SistemBDD.guardarMembresia(membresia);
+
+                        System.out.println("Membresia registrada correctamente!");
+                        System.out.println("Nombre: " + membresia.getNombre());
+                        System.out.println("Actividad: " + membresia.getActividad());
+                        System.out.println("Duracion: " + membresia.getDuracionDias() + " dias");
+                        System.out.println("Precio: $" + membresia.getPrecio());
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
+
 
                 case 2:
                     try {
@@ -330,6 +388,138 @@ public class Main {
 
         } while (opcion != 0);
     }
+    private static void menuPagos(Scanner sc) {
+        int opcion;
 
+        do {
+            System.out.println("\n===== GESTION DE PAGOS =====");
+            System.out.println("1. Registrar pago");
+            System.out.println("2. Listar pagos de un socio");
+            System.out.println("3. Consultar estado de membresia");
+            System.out.println("0. Volver");
+
+            opcion = leerEntero(sc, "Ingrese una opcion: ");
+
+            switch (opcion) {
+
+                case 1:
+                    try {
+                        String dni = leerTexto(sc, "DNI del socio: ");
+
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                        System.out.println("Socio encontrado: "
+                                + socio.getNombre() + " " + socio.getApellido());
+
+                        ArrayList<Membresia> membresias = SistemBDD.listarMembresias();
+
+                        if (membresias.isEmpty()) {
+                            System.out.println("No hay membresias disponibles");
+                        } else {
+
+                            System.out.println("\n===== MEMBRESIAS DISPONIBLES =====");
+
+                            for (int i = 0; i < membresias.size(); i++) {
+                                Membresia m = membresias.get(i);
+
+                                System.out.println((i + 1) + ". " + m.getNombre()
+                                        + " | " + m.getActividad()
+                                        + " | $" + m.getPrecio());
+                            }
+
+                            int opcionPlan;
+
+                            do {
+                                opcionPlan = leerEntero(sc, "Seleccione una membresia: ");
+
+                                if (opcionPlan < 1 || opcionPlan > membresias.size()) {
+                                    System.out.println("Opcion incorrecta");
+                                }
+
+                            } while (opcionPlan < 1 || opcionPlan > membresias.size());
+
+                            Membresia plan = membresias.get(opcionPlan - 1);
+
+                            LocalDate fechaPago = LocalDate.now();
+
+                            LocalDate inicio = fechaPago;
+                            LocalDate ultimoVencimiento = SistemBDD.ultimoVencimiento(
+                                    socio.getId(), plan.getActividad());
+
+                            if (ultimoVencimiento != null &&
+                                    ultimoVencimiento.isAfter(inicio)) {
+                                inicio = ultimoVencimiento;
+                            }
+
+                            LocalDate vencimiento = plan.calcularVencimiento(inicio);
+
+                            Pago pago = new Pago(
+                                    0,
+                                    socio.getId(),
+                                    plan.getId(),
+                                    plan.getActividad(),
+                                    plan.getPrecio(),
+                                    fechaPago,
+                                    vencimiento
+                            );
+
+                            SistemBDD.guardarPago(pago);
+
+                            System.out.println("Pago registrado correctamente!");
+                            System.out.println("Socio: " + socio.getNombre());
+                            System.out.println("Plan: " + plan.getNombre());
+                            System.out.println("Monto: $" + pago.getMonto());
+                            System.out.println("Vencimiento: " + pago.getFechaVencimiento());
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+
+                case 2:
+                    try {
+                        String dni = leerTexto(sc, "DNI del socio: ");
+
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                        ArrayList<Pago> pagos =
+                                SistemBDD.listarPagosDeSocio(socio.getId());
+
+                        if (pagos.isEmpty()) {
+                            System.out.println("El socio no tiene pagos registrados");
+                        } else {
+                            System.out.println("Pagos de " + socio.getNombre()
+                                    + " " + socio.getApellido());
+
+                            for (Pago pago : pagos) {
+                                System.out.println("Actividad: " + pago.getActividad());
+                                System.out.println("Monto: $" + pago.getMonto());
+                                System.out.println("Fecha de pago: " + pago.getFechaPago());
+                                System.out.println("Vencimiento: " + pago.getFechaVencimiento());
+                                System.out.println("----------------------");
+                            }
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("Consultar estado de membresia");
+                    break;
+
+                case 0:
+                    System.out.println("Volviendo al menu principal...");
+                    break;
+
+                default:
+                    System.out.println("Opcion incorrecta");
+            }
+
+        } while (opcion != 0);
+    }
 
 }
