@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -70,7 +71,41 @@ public class Main {
 
             switch (opcion) {
                 case 1:
-                    System.out.println("Registrar socio");
+                    try {
+                        sc.nextLine();
+
+                        System.out.print("Nombre: ");
+                        String nombre = sc.nextLine();
+
+                        System.out.print("Apellido: ");
+                        String apellido = sc.nextLine();
+
+                        System.out.print("DNI: ");
+                        String dni = sc.nextLine();
+
+                        System.out.print("Edad: ");
+                        int edad = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print("Telefono: ");
+                        String telefono = sc.nextLine();
+
+                        System.out.print("Email: ");
+                        String email = sc.nextLine();
+
+                        Socio socio = new Socio(0, nombre, apellido, dni,
+                                edad, telefono, email, LocalDate.now());
+
+                        Socio guardado = SistemBDD.guardarSocio(socio);
+
+                        System.out.println("Socio registrado correctamente!");
+                        System.out.println(guardado.resumen());
+
+                    } catch (DatosInvalidosException e) {
+                        System.out.println(e.getMessage());
+                    } catch (GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 2:
