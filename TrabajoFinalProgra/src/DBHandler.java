@@ -8,7 +8,7 @@ public class DBHandler {
             "jdbc:mysql://localhost:3306/fightfit";
 
     private static final String USUARIO = "root";
-    private static final String PASSWORD = "Facultad2026";
+    private static final String PASSWORD = "FacuTomiSQL";
 
     public static Connection obtenerConexion() throws SQLException {
         return DriverManager.getConnection(URL, USUARIO, PASSWORD);
