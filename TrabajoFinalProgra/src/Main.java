@@ -894,7 +894,15 @@ public class Main {
 
         } while (opcion != 0);
     }
+    private static void mostrarPelea(Pelea pelea) {
+        Socio socio = SistemBDD.buscarSocio(pelea.getCompetidorId());
 
+        System.out.println("Competidor: " + socio.getNombreCompleto());
+        System.out.println("Rival: " + pelea.getRival());
+        System.out.println("Fecha: " + pelea.getFecha());
+        System.out.println("Lugar: " + pelea.getLugar());
+        System.out.println("Resultado: " + pelea.getResultado());
+    }
     private static void menuBoxeo(Scanner sc) {
         int opcion;
 
@@ -960,25 +968,185 @@ public class Main {
                     }
                     break;
 
+
                 case 3:
-                    System.out.println("Actualizar peso");
+                    try {
+                        String dni = leerTexto(sc, "DNI del competidor: ");
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                        SistemBDD.buscarCompetidor(socio.getId());
+
+                        double peso = leerDecimal(sc, "Nuevo peso en kg: ");
+
+                        SistemBDD.actualizarPesoCompetidor(socio.getId(), peso);
+
+                        Competidor actualizado =
+                                SistemBDD.buscarCompetidor(socio.getId());
+
+                        System.out.println("Peso actualizado correctamente!");
+                        System.out.println("Peso: " + actualizado.getPesoKg());
+                        System.out.println("Categoria: " + actualizado.getCategoria());
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 4:
-                    System.out.println("Programar pelea");
+                    try {
+                        String dni = leerTexto(sc, "DNI del competidor: ");
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+                        Competidor competidor =
+                                SistemBDD.buscarCompetidor(socio.getId());
+
+                        String rival = leerTexto(sc, "Nombre del rival: ");
+                        String lugar = leerTexto(sc, "Lugar: ");
+
+                        LocalDate fecha = null;
+
+                        while (fecha == null) {
+                            try {
+                                String texto = leerTexto(sc, "Fecha (AAAA-MM-DD): ");
+                                LocalDate ingresada = LocalDate.parse(texto);
+
+                                if (ingresada.isBefore(LocalDate.now())) {
+                                    System.out.println("La fecha no puede ser anterior a hoy");
+                                } else {
+                                    fecha = ingresada;
+                                }
+
+                            } catch (DateTimeParseException e) {
+                                System.out.println("Formato incorrecto. Ejemplo: 2026-12-10");
+                            }
+                        }
+
+                        Pelea pelea = new Pelea(
+                                0,
+                                competidor.getId(),
+                                rival,
+                                fecha,
+                                lugar,
+                                ResultadoPelea.PENDIENTE
+                        );
+
+                        SistemBDD.guardarPelea(pelea);
+
+                        System.out.println("Pelea programada correctamente!");
+                        mostrarPelea(pelea);
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 5:
-                    System.out.println("Listar peleas");
+                    try {
+                        ArrayList<Pelea> peleas = SistemBDD.listarPeleas();
+
+                        if (peleas.isEmpty()) {
+                            System.out.println("No hay peleas registradas");
+                        } else {
+                            for (Pelea pelea : peleas) {
+                                mostrarPelea(pelea);
+                                System.out.println("----------------------");
+                            }
+                        }
+
+                    } catch (GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 6:
-                    System.out.println("Consultar peleas");
+                    try {
+                        String dni = leerTexto(sc, "DNI del competidor: ");
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                        SistemBDD.buscarCompetidor(socio.getId());
+
+                        ArrayList<Pelea> peleas =
+                                SistemBDD.listarPeleasDeCompetidor(socio.getId());
+
+                        if (peleas.isEmpty()) {
+                            System.out.println("El competidor no tiene peleas");
+                        } else {
+                            for (Pelea pelea : peleas) {
+                                mostrarPelea(pelea);
+                                System.out.println("----------------------");
+                            }
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
                 case 7:
-                    System.out.println("Registrar resultado");
+                    try {
+                        ArrayList<Pelea> pendientes = new ArrayList<>();
+
+                        for (Pelea pelea : SistemBDD.listarPeleas()) {
+                            if (pelea.getResultado() == ResultadoPelea.PENDIENTE) {
+                                pendientes.add(pelea);
+                            }
+                        }
+
+                        if (pendientes.isEmpty()) {
+                            System.out.println("No hay peleas pendientes");
+                        } else {
+                            System.out.println("\n===== PELEAS PENDIENTES =====");
+
+                            for (int i = 0; i < pendientes.size(); i++) {
+                                System.out.println((i + 1) + ".");
+                                mostrarPelea(pendientes.get(i));
+                            }
+
+                            int opcionPelea;
+
+                            do {
+                                opcionPelea = leerEntero(sc, "Seleccione una pelea: ");
+                            } while (opcionPelea < 1
+                                    || opcionPelea > pendientes.size());
+
+                            Pelea seleccionada = pendientes.get(opcionPelea - 1);
+
+                            ResultadoPelea resultado = null;
+
+                            do {
+                                System.out.println("1. Ganada");
+                                System.out.println("2. Perdida");
+                                System.out.println("3. Empate");
+
+                                int opcionResultado = leerEntero(sc, "Resultado: ");
+
+                                switch (opcionResultado) {
+                                    case 1:
+                                        resultado = ResultadoPelea.GANADA;
+                                        break;
+                                    case 2:
+                                        resultado = ResultadoPelea.PERDIDA;
+                                        break;
+                                    case 3:
+                                        resultado = ResultadoPelea.EMPATE;
+                                        break;
+                                    default:
+                                        System.out.println("Opcion incorrecta");
+                                }
+
+                            } while (resultado == null);
+
+                            SistemBDD.registrarResultadoPelea(
+                                    seleccionada.getId(), resultado);
+
+                            System.out.println("Resultado registrado correctamente!");
+                            System.out.println("Record del competidor actualizado!");
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
+
 
                 case 0:
                     System.out.println("Volviendo al menu principal...");
