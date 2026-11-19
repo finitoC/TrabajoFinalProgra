@@ -1,16 +1,16 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DBHandler {
-
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/fightfit";
-
-    private static final String USUARIO = "root";
-    private static final String PASSWORD = "FacuTomiSQL";
+    private static final String URL = "jdbc:sqlite:fightfit.db";
 
     public static Connection obtenerConexion() throws SQLException {
-        return DriverManager.getConnection(URL, USUARIO, PASSWORD);
+        Connection con = DriverManager.getConnection(URL);
+        try (Statement st = con.createStatement()) {
+            st.execute("PRAGMA foreign_keys = ON");
+        }
+        return con;
     }
 }

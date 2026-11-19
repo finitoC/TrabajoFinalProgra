@@ -8,14 +8,24 @@ public class SistemBDD {
     /**
      * Abre una conexión nueva. Quien la pida es responsable de cerrarla (try-with-resources).
      */
+    private static final String URL = "jdbc:sqlite:fightfit.db";
     private static Connection conectar() throws GimnasioException {
+
         try {
-            return DBHandler.obtenerConexion();
+            Connection con = DriverManager.getConnection(URL);
+
+            try (Statement st = con.createStatement()) {
+                st.execute("PRAGMA foreign_keys = ON");
+            }
+
+            return con;
+
         } catch (SQLException e) {
-            throw new GimnasioException("No se pudo conectar a la base de datos: " + e.getMessage());
+            throw new GimnasioException(
+                    "Error al conectar a SQLite: " + e.getMessage()
+            );
         }
     }
-
     //Socio
 
     /**
@@ -176,8 +186,8 @@ public class SistemBDD {
             ps.setInt(2, pago.getPlanId());
             ps.setString(3, pago.getActividad().name());
             ps.setDouble(4, pago.getMonto());
-            ps.setObject(5, pago.getFechaPago());
-            ps.setObject(6, pago.getFechaVencimiento());
+            ps.setString(5, pago.getFechaPago().toString());
+            ps.setString(6, pago.getFechaVencimiento().toString());
             ps.executeUpdate();
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -191,28 +201,45 @@ public class SistemBDD {
         }
     }
 
-    public static ArrayList<Pago> listarPagosDeSocio(int socioId) throws GimnasioException {
-        if (socioId <= 0){
-            throw new DatosInvalidosException("El id del socio no existe");
-        }
+
+    public static ArrayList<Pago> listarPagosDeSocio(int socioId)
+            throws GimnasioException {
+
         ArrayList<Pago> pagos = new ArrayList<>();
+
         String sql = "SELECT * FROM pago WHERE socio_id = ? ORDER BY fecha_pago DESC";
 
-        try (Connection con = conectar(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, socioId);
+
             try (ResultSet rs = ps.executeQuery()) {
+
                 while (rs.next()) {
-                    pagos.add(new Pago(rs.getInt("id"), rs.getInt("socio_id"), rs.getInt("plan_id"),
-                            Actividad.valueOf(rs.getString("actividad")), rs.getDouble("monto"),
-                            rs.getDate("fecha_pago").toLocalDate(),
-                            rs.getDate("fecha_vencimiento").toLocalDate()));
+                    Pago pago = new Pago(
+                            rs.getInt("id"),
+                            rs.getInt("socio_id"),
+                            rs.getInt("plan_id"),
+                            Actividad.valueOf(rs.getString("actividad")),
+                            rs.getDouble("monto"),
+                            LocalDate.parse(rs.getString("fecha_pago")),
+                            LocalDate.parse(rs.getString("fecha_vencimiento"))
+                    );
+
+                    pagos.add(pago);
                 }
             }
-            return pagos;
+
         } catch (SQLException e) {
-            throw new GimnasioException("Error al listar los pagos del socio: " + e.getMessage());
+            throw new GimnasioException(
+                    "Error al listar los pagos del socio: " + e.getMessage()
+            );
         }
+
+        return pagos;
     }
+
 
 
 
@@ -388,20 +415,39 @@ public class SistemBDD {
     // Pagos y estado de membresia
 
     /** El ultimo vencimiento por actividad define si el socio esta al dia. */
-    public static LocalDate ultimoVencimiento(int socioId, Actividad actividad) throws GimnasioException {
-        if (socioId <= 0 || actividad == null) throw new DatosInvalidosException("Socio o actividad invalidos.");
-        String sql = "SELECT MAX(fecha_vencimiento) AS vencimiento FROM pago WHERE socio_id = ? AND actividad = ?";
-        try (Connection con = conectar(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+    public static LocalDate ultimoVencimiento(int socioId, Actividad actividad)
+            throws GimnasioException {
+
+        String sql = "SELECT MAX(fecha_vencimiento) AS vencimiento "
+                + "FROM pago WHERE socio_id = ? AND actividad = ?";
+
+        try (Connection con = conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, socioId);
             ps.setString(2, actividad.name());
+
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next() || rs.getDate("vencimiento") == null) return null;
-                return rs.getDate("vencimiento").toLocalDate();
+
+                if (rs.next()) {
+                    String fecha = rs.getString("vencimiento");
+
+                    if (fecha != null) {
+                        return LocalDate.parse(fecha);
+                    }
+                }
             }
+
         } catch (SQLException e) {
-            throw new GimnasioException("Error al consultar vencimiento: " + e.getMessage());
+            throw new GimnasioException(
+                    "Error al consultar vencimiento: " + e.getMessage()
+            );
         }
+
+        return null;
     }
+
 
     public static EstadoMembresia estadoMembresia(int socioId, Actividad actividad) {
         return EstadoMembresia.calcular(ultimoVencimiento(socioId, actividad));
