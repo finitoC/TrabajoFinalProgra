@@ -46,7 +46,7 @@ public class Main {
                     menuClases(sc);
                     break;
                 case 7:
-                    System.out.println("Boxeo");
+                    menuBoxeo(sc);
                     break;
                 case 0:
                     System.out.println("Saliendo...");
@@ -883,6 +883,102 @@ public class Main {
                     }
                     break;
 
+
+                case 0:
+                    System.out.println("Volviendo al menu principal...");
+                    break;
+
+                default:
+                    System.out.println("Opcion incorrecta");
+            }
+
+        } while (opcion != 0);
+    }
+
+    private static void menuBoxeo(Scanner sc) {
+        int opcion;
+
+        do {
+            System.out.println("\n===== GESTION DE BOXEO =====");
+            System.out.println("1. Registrar competidor");
+            System.out.println("2. Listar competidores");
+            System.out.println("3. Actualizar peso");
+            System.out.println("4. Programar pelea");
+            System.out.println("5. Listar peleas");
+            System.out.println("6. Consultar peleas de un competidor");
+            System.out.println("7. Registrar resultado de pelea");
+            System.out.println("0. Volver");
+
+            opcion = leerEntero(sc, "Ingrese una opcion: ");
+
+            switch (opcion) {
+                case 1:
+                    try {
+                        String dni = leerTexto(sc, "DNI del socio: ");
+                        Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                        double peso = leerDecimal(sc, "Peso en kg: ");
+
+                        Competidor competidor = new Competidor(
+                                socio, peso, 0, 0, 0, true
+                        );
+
+                        SistemBDD.guardarCompetidor(competidor);
+
+                        System.out.println("Competidor registrado correctamente!");
+                        System.out.println("Nombre: " + competidor.getNombreCompleto());
+                        System.out.println("Peso: " + competidor.getPesoKg());
+                        System.out.println("Categoria: " + competidor.getCategoria());
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case 2:
+                    try {
+                        ArrayList<Competidor> competidores =
+                                SistemBDD.listarCompetidores();
+
+                        if (competidores.isEmpty()) {
+                            System.out.println("No hay competidores registrados");
+                        } else {
+                            for (Competidor c : competidores) {
+                                System.out.println("Nombre: " + c.getNombreCompleto());
+                                System.out.println("DNI: " + c.getDni());
+                                System.out.println("Peso: " + c.getPesoKg() + " kg");
+                                System.out.println("Categoria: " + c.getCategoria());
+                                System.out.println("Record: " + c.getVictorias()
+                                        + "-" + c.getDerrotas()
+                                        + "-" + c.getEmpates());
+                                System.out.println("----------------------");
+                            }
+                        }
+
+                    } catch (GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("Actualizar peso");
+                    break;
+
+                case 4:
+                    System.out.println("Programar pelea");
+                    break;
+
+                case 5:
+                    System.out.println("Listar peleas");
+                    break;
+
+                case 6:
+                    System.out.println("Consultar peleas");
+                    break;
+
+                case 7:
+                    System.out.println("Registrar resultado");
+                    break;
 
                 case 0:
                     System.out.println("Volviendo al menu principal...");
