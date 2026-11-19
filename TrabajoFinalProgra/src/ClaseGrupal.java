@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.format.DateTimeParseException;
 
 /** Clase grupal semanal (ej: "Boxeo iniciales", lunes 19:00) con cupo limitado e inscriptos. */
 public class ClaseGrupal implements ClaseDescribible {

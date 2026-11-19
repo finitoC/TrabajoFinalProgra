@@ -1,6 +1,8 @@
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -658,9 +660,107 @@ public class Main {
             opcion = leerEntero(sc, "Ingrese una opcion: ");
 
             switch (opcion) {
+
                 case 1:
-                    System.out.println("Registrar clase");
+                    try {
+                        String nombre = leerTexto(sc, "Nombre de la clase: ");
+
+                        System.out.println("1. Gimnasio");
+                        System.out.println("2. Boxeo");
+
+                        int opcionActividad;
+                        do {
+                            opcionActividad = leerEntero(sc, "Actividad: ");
+                        } while (opcionActividad < 1 || opcionActividad > 2);
+
+                        Actividad actividad;
+
+                        if (opcionActividad == 1) {
+                            actividad = Actividad.GIMNASIO;
+                        } else {
+                            actividad = Actividad.BOXEO;
+                        }
+
+                        ArrayList<Entrenador> disponibles = new ArrayList<>();
+
+                        for (Entrenador entrenador : SistemBDD.listarEntrenadores()) {
+                            if (entrenador.entrena(actividad)) {
+                                disponibles.add(entrenador);
+                            }
+                        }
+
+                        if (disponibles.isEmpty()) {
+                            System.out.println("No hay entrenadores disponibles para esta actividad");
+                        } else {
+                            System.out.println("\n===== ENTRENADORES =====");
+
+                            for (int i = 0; i < disponibles.size(); i++) {
+                                Entrenador e = disponibles.get(i);
+
+                                System.out.println((i + 1) + ". "
+                                        + e.getNombre() + " " + e.getApellido());
+                            }
+
+                            int opcionEntrenador;
+                            do {
+                                opcionEntrenador = leerEntero(sc, "Seleccione entrenador: ");
+                            } while (opcionEntrenador < 1
+                                    || opcionEntrenador > disponibles.size());
+
+                            Entrenador entrenador = disponibles.get(opcionEntrenador - 1);
+
+                            System.out.println("\n===== DIAS DISPONIBLES =====");
+
+                            DiaSemana[] dias = DiaSemana.values();
+
+                            for (int i = 0; i < dias.length; i++) {
+                                System.out.println((i + 1) + ". " + dias[i].getNombre());
+                            }
+
+                            int opcionDia;
+                            do {
+                                opcionDia = leerEntero(sc, "Seleccione dia: ");
+                            } while (opcionDia < 1 || opcionDia > dias.length);
+
+                            DiaSemana dia = dias[opcionDia - 1];
+
+                            LocalTime hora = null;
+
+                            while (hora == null) {
+                                try {
+                                    String textoHora = leerTexto(sc, "Hora (HH:mm): ");
+                                    hora = LocalTime.parse(textoHora);
+                                } catch (DateTimeParseException e) {
+                                    System.out.println("Formato incorrecto. Ejemplo: 18:30");
+                                }
+                            }
+
+                            int cupo = leerEntero(sc, "Cupo maximo: ");
+
+                            ClaseGrupal clase = new ClaseGrupal(
+                                    0,
+                                    nombre,
+                                    actividad,
+                                    dia,
+                                    hora,
+                                    cupo,
+                                    entrenador.getId()
+                            );
+
+                            SistemBDD.guardarClase(clase);
+
+                            System.out.println("Clase registrada correctamente!");
+                            System.out.println("Nombre: " + clase.getNombre());
+                            System.out.println("Actividad: " + clase.getActividad());
+                            System.out.println("Dia: " + clase.getDia().getNombre());
+                            System.out.println("Hora: " + clase.getHora());
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
+
 
                 case 2:
                     try {
