@@ -41,7 +41,7 @@ public class Main {
                     menuAsistencias(sc);
                     break;
                 case 6:
-                    System.out.println("Clases grupales");
+                    menuClases(sc);
                     break;
                 case 7:
                     System.out.println("Boxeo");
@@ -631,6 +631,68 @@ public class Main {
                     } catch (DatosInvalidosException | GimnasioException e) {
                         System.out.println(e.getMessage());
                     }
+                    break;
+
+                case 0:
+                    System.out.println("Volviendo al menu principal...");
+                    break;
+
+                default:
+                    System.out.println("Opcion incorrecta");
+            }
+
+        } while (opcion != 0);
+    }
+
+    private static void menuClases(Scanner sc) {
+        int opcion;
+
+        do {
+            System.out.println("\n===== CLASES GRUPALES =====");
+            System.out.println("1. Registrar clase");
+            System.out.println("2. Listar clases");
+            System.out.println("3. Inscribir socio en una clase");
+            System.out.println("4. Listar socios inscriptos");
+            System.out.println("0. Volver");
+
+            opcion = leerEntero(sc, "Ingrese una opcion: ");
+
+            switch (opcion) {
+                case 1:
+                    System.out.println("Registrar clase");
+                    break;
+
+                case 2:
+                    try {
+                        ArrayList<ClaseGrupal> clases =
+                                SistemBDD.listarClases();
+
+                        if (clases.isEmpty()) {
+                            System.out.println("No hay clases registradas");
+                        } else {
+                            for (ClaseGrupal clase : clases) {
+                                System.out.println("Nombre: " + clase.getNombre());
+                                System.out.println("Actividad: " + clase.getActividad());
+                                System.out.println("Dia: " + clase.getDia().getNombre());
+                                System.out.println("Hora: " + clase.getHora());
+                                System.out.println("Cupos disponibles: "
+                                        + clase.cuposLibres()
+                                        + "/" + clase.getCupo());
+                                System.out.println("-------------------------");
+                            }
+                        }
+
+                    } catch (GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("Inscribir socio en una clase");
+                    break;
+
+                case 4:
+                    System.out.println("Listar socios inscriptos");
                     break;
 
                 case 0:

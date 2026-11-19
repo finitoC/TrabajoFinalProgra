@@ -443,6 +443,39 @@ public class SistemBDD {
         return lista;
     }
 
+    public static ArrayList<ClaseGrupal> listarClases() throws GimnasioException {
+
+        ArrayList<ClaseGrupal> lista = new ArrayList<>();
+
+        String sql = "SELECT * FROM clase ORDER BY actividad, dia, hora";
+
+        try (Connection con = conectar();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                ClaseGrupal clase = new ClaseGrupal(
+                        rs.getInt("id"),
+                        rs.getString("nombre"),
+                        Actividad.valueOf(rs.getString("actividad")),
+                        DiaSemana.valueOf(rs.getString("dia")),
+                        rs.getTime("hora").toLocalTime(),
+                        rs.getInt("cupo"),
+                        rs.getInt("entrenador_id")
+                );
+
+                cargarInscriptos(con, clase);
+                lista.add(clase);
+            }
+
+        } catch (SQLException e) {
+            throw new GimnasioException("Error al listar clases: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+
     // ================================================================ CLASES GRUPALES
 
     public static ClaseGrupal guardarClase(ClaseGrupal clase) throws GimnasioException {
