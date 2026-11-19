@@ -103,6 +103,39 @@ public class SistemBDD {
             throw new GimnasioException("Error al buscar el socio: " + e.getMessage());
         }
     }
+    public static Socio buscarSocioPorDni(String dni) throws GimnasioException {
+
+        Validador.validarDni(dni);
+
+        String sql = "SELECT * FROM socio WHERE dni = ?";
+
+        try (Connection con = conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, dni);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return new Socio(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getString("apellido"),
+                            rs.getString("dni"),
+                            rs.getInt("edad"),
+                            rs.getString("telefono"),
+                            rs.getString("email"),
+                            LocalDate.parse(rs.getString("fecha_alta"))
+                    );
+                } else {
+                    throw new GimnasioException("No existe un socio con ese DNI");
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new GimnasioException("Error al buscar socio: " + e.getMessage());
+        }
+    }
 
     public static ArrayList<Socio> listarSocios() throws GimnasioException {
         ArrayList<Socio> socios = new ArrayList<>();
