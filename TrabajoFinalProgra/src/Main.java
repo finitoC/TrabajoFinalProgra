@@ -787,13 +787,102 @@ public class Main {
                     }
                     break;
 
+
                 case 3:
-                    System.out.println("Inscribir socio en una clase");
+                    try {
+                        ArrayList<ClaseGrupal> clases = SistemBDD.listarClases();
+
+                        if (clases.isEmpty()) {
+                            System.out.println("No hay clases disponibles");
+                        } else {
+                            System.out.println("\n===== CLASES DISPONIBLES =====");
+
+                            for (int i = 0; i < clases.size(); i++) {
+                                ClaseGrupal clase = clases.get(i);
+
+                                System.out.println((i + 1) + ". " + clase.getNombre());
+                                System.out.println("Actividad: " + clase.getActividad());
+                                System.out.println("Dia: " + clase.getDia().getNombre());
+                                System.out.println("Hora: " + clase.getHora());
+                                System.out.println("Cupos libres: " + clase.cuposLibres());
+                                System.out.println("----------------------");
+                            }
+
+                            int opcionClase;
+
+                            do {
+                                opcionClase = leerEntero(sc, "Seleccione una clase: ");
+
+                                if (opcionClase < 1 || opcionClase > clases.size()) {
+                                    System.out.println("Opcion incorrecta");
+                                }
+
+                            } while (opcionClase < 1 || opcionClase > clases.size());
+
+                            ClaseGrupal clase = clases.get(opcionClase - 1);
+
+                            String dni = leerTexto(sc, "DNI del socio: ");
+                            Socio socio = SistemBDD.buscarSocioPorDni(dni);
+
+                            SistemBDD.inscribirSocioEnClase(
+                                    clase.getId(),
+                                    socio.getId()
+                            );
+
+                            System.out.println("Socio inscripto correctamente!");
+                            System.out.println("Socio: " + socio.getNombre()
+                                    + " " + socio.getApellido());
+                            System.out.println("Clase: " + clase.getNombre());
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
 
+
+
                 case 4:
-                    System.out.println("Listar socios inscriptos");
+                    try {
+                        ArrayList<ClaseGrupal> clases = SistemBDD.listarClases();
+
+                        if (clases.isEmpty()) {
+                            System.out.println("No hay clases registradas");
+                        } else {
+                            for (int i = 0; i < clases.size(); i++) {
+                                System.out.println((i + 1) + ". "
+                                        + clases.get(i).getNombre());
+                            }
+
+                            int opcionClase;
+
+                            do {
+                                opcionClase = leerEntero(sc, "Seleccione una clase: ");
+                            } while (opcionClase < 1 || opcionClase > clases.size());
+
+                            ClaseGrupal clase = clases.get(opcionClase - 1);
+
+                            ArrayList<Socio> socios =
+                                    SistemBDD.listarInscriptosDeClase(clase.getId());
+
+                            if (socios.isEmpty()) {
+                                System.out.println("No hay socios inscriptos");
+                            } else {
+                                System.out.println("Inscriptos en " + clase.getNombre());
+
+                                for (Socio socio : socios) {
+                                    System.out.println(socio.getNombre() + " "
+                                            + socio.getApellido()
+                                            + " | DNI: " + socio.getDni());
+                                }
+                            }
+                        }
+
+                    } catch (DatosInvalidosException | GimnasioException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
+
 
                 case 0:
                     System.out.println("Volviendo al menu principal...");
