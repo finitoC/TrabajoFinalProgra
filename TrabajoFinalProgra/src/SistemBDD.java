@@ -302,6 +302,31 @@ public class SistemBDD {
         }
     }
 
+    public static Entrenador buscarEntrenadorPorDni(String dni) throws GimnasioException {
+
+        Validador.validarDni(dni);
+
+        String sql = "SELECT * FROM entrenador WHERE dni = ?";
+
+        try (Connection con = conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, dni);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+                    return leerEntrenador(rs);
+                } else {
+                    throw new GimnasioException("No existe un entrenador con ese DNI.");
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new GimnasioException("Error al buscar entrenador: " + e.getMessage());
+        }
+    }
+
     public static Entrenador buscarEntrenador(int id) throws GimnasioException {
         if (id <= 0) throw new DatosInvalidosException("ID de entrenador invalido.");
         try (Connection con = conectar();
