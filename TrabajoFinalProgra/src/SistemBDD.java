@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -505,7 +506,7 @@ public class SistemBDD {
                         rs.getString("nombre"),
                         Actividad.valueOf(rs.getString("actividad")),
                         DiaSemana.valueOf(rs.getString("dia")),
-                        rs.getTime("hora").toLocalTime(),
+                        LocalTime.parse(rs.getString("hora")),
                         rs.getInt("cupo"),
                         rs.getInt("entrenador_id")
                 );
@@ -515,7 +516,9 @@ public class SistemBDD {
             }
 
         } catch (SQLException e) {
+            System.out.println("aca esta el error");
             throw new GimnasioException("Error al listar clases: " + e.getMessage());
+
         }
 
         return lista;
