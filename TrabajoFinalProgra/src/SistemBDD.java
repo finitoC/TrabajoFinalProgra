@@ -52,7 +52,7 @@ public class SistemBDD {
             ps.setInt(4, socio.getEdad());
             ps.setString(5, socio.getTelefono());
             ps.setString(6, socio.getEmail());
-            ps.setObject(7, socio.getFechaAlta());
+            ps.setString(7, socio.getFechaAlta().toString());
 
             ps.executeUpdate();
 
@@ -75,8 +75,8 @@ public class SistemBDD {
                 );
             }
             ///SQLIntegrityConstraintViolationException  es una excepcion que comprueba que no se esten violando las normas
-        ///de la tabla de mysql, por ejemplo si intentamos ingresar un dni de un socio duplicado va a tirar esta excepcion
-        /// porque DNI en la bdd es unique
+            ///de la tabla de mysql, por ejemplo si intentamos ingresar un dni de un socio duplicado va a tirar esta excepcion
+            /// porque DNI en la bdd es unique
         } catch (SQLIntegrityConstraintViolationException e) {
             throw new GimnasioException("Ya existe un socio con el DNI " + socio.getDni() + ".");
         } catch (SQLException e) {
@@ -465,7 +465,8 @@ public class SistemBDD {
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, asistencia.getSocioId());
             ps.setString(2, asistencia.getActividad().name());
-            ps.setObject(3, asistencia.getFechaHora());
+            ps.setString(3, asistencia.getFechaHora().format(
+                    java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) asistencia.setId(rs.getInt(1));
@@ -478,12 +479,13 @@ public class SistemBDD {
     public static ArrayList<Asistencia> listarAsistenciasDeSocio(int socioId) throws GimnasioException {
         if (socioId <= 0) throw new DatosInvalidosException("ID de socio invalido.");
         ArrayList<Asistencia> lista = new ArrayList<>();
-        String sql = "SELECT * FROM asistencia WHERE socio_id = ? ORDER BY fecha_hora DESC";
+        String sql = "SELECT * FROM asistencia WHERE socio_id = ? ORDER BY datetime(fecha_hora) DESC";
         try (Connection con = conectar(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, socioId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) lista.add(new Asistencia(rs.getInt("id"), rs.getInt("socio_id"),
-                        Actividad.valueOf(rs.getString("actividad")), LocalDateTime.parse(rs.getString("fecha_hora"))));
+                        Actividad.valueOf(rs.getString("actividad")),
+                        LocalDateTime.parse(rs.getString("fecha_hora").replace(' ', 'T'))));
             }
         } catch (SQLException e) {
             throw new GimnasioException("Error al listar asistencias: " + e.getMessage());
@@ -517,7 +519,6 @@ public class SistemBDD {
             }
 
         } catch (SQLException e) {
-            System.out.println("aca esta el error");
             throw new GimnasioException("Error al listar clases: " + e.getMessage());
 
         }
@@ -539,10 +540,10 @@ public class SistemBDD {
             ps.setString(1, clase.getNombre());
             ps.setString(2, clase.getActividad().name());
             ps.setString(3, clase.getDia().name());
-            ps.setObject(4, clase.getHora());
+            ps.setString(4, clase.getHora().toString());
             ps.setInt(5, clase.getCupo());
             if (clase.getEntrenadorId() == 0) {
-                ps.setObject(6, null);
+                ps.setNull(6, Types.INTEGER);
             } else {
                 ps.setInt(6, clase.getEntrenadorId());
             }
@@ -724,7 +725,7 @@ public class SistemBDD {
             // la tabla pelea guarda la PK interna de competidor.
             ps.setInt(1, buscarIdFilaCompetidor(pelea.getCompetidorId()));
             ps.setString(2, pelea.getRival());
-            ps.setObject(3, pelea.getFecha());
+            ps.setString(3, pelea.getFecha().toString());
             ps.setString(4, pelea.getLugar());
             ps.setString(5, pelea.getResultado().name());
             ps.executeUpdate();
