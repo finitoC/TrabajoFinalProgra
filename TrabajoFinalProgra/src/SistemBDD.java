@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -482,7 +483,7 @@ public class SistemBDD {
             ps.setInt(1, socioId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) lista.add(new Asistencia(rs.getInt("id"), rs.getInt("socio_id"),
-                        Actividad.valueOf(rs.getString("actividad")), rs.getTimestamp("fecha_hora").toLocalDateTime()));
+                        Actividad.valueOf(rs.getString("actividad")), LocalDateTime.parse(rs.getString("fecha_hora"))));
             }
         } catch (SQLException e) {
             throw new GimnasioException("Error al listar asistencias: " + e.getMessage());
@@ -575,7 +576,7 @@ public class SistemBDD {
     private static ClaseGrupal leerClase(ResultSet rs) throws SQLException {
         return new ClaseGrupal(rs.getInt("id"), rs.getString("nombre"),
                 Actividad.valueOf(rs.getString("actividad")), DiaSemana.valueOf(rs.getString("dia")),
-                rs.getTime("hora").toLocalTime(), rs.getInt("cupo"), rs.getInt("entrenador_id"));
+                LocalTime.parse(rs.getString("hora")), rs.getInt("cupo"), rs.getInt("entrenador_id"));
     }
 
     private static void cargarInscriptos(Connection con, ClaseGrupal clase) throws SQLException {
@@ -625,7 +626,7 @@ public class SistemBDD {
     private static Socio leerSocio(ResultSet rs) throws SQLException {
         return new Socio(rs.getInt("id"), rs.getString("nombre"), rs.getString("apellido"),
                 rs.getString("dni"), rs.getInt("edad"), rs.getString("telefono"),
-                rs.getString("email"), rs.getDate("fecha_alta").toLocalDate());
+                rs.getString("email"), LocalDate.parse(rs.getString("fecha_alta")));
     }
 
     // COMPETIDORES
@@ -754,7 +755,7 @@ public class SistemBDD {
 
     private static Pelea leerPelea(ResultSet rs) throws SQLException {
         return new Pelea(rs.getInt("id"), rs.getInt("socio_competidor_id"), rs.getString("rival"),
-                rs.getDate("fecha").toLocalDate(), rs.getString("lugar"),
+                LocalDate.parse(rs.getString("fecha")), rs.getString("lugar"),
                 ResultadoPelea.valueOf(rs.getString("resultado")));
     }
 
